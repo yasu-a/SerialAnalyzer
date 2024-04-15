@@ -1,5 +1,5 @@
 from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLineEdit
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QCheckBox
 from serial import Serial
 
 from utils import decode_ascii
@@ -33,6 +33,11 @@ class SerialSenderWidget(QWidget):
         e_text.returnPressed.connect(self.flush)
         layout.addWidget(e_text)
         self.__e_text = e_text
+
+        cb_newline = QCheckBox(self)
+        cb_newline.setText("Send newline")
+        layout.addWidget(cb_newline)
+        self.__cb_newline = cb_newline
 
         self.setLayout(layout)
 
@@ -151,16 +156,22 @@ class SerialSenderWidget(QWidget):
             )
 
     def flush(self):
-        if not self.__state.startswith("ok"):
+        if self.__cb_newline.isChecked():
+            self.__e_bytes.setText(self.__e_bytes.text() + "0a")
+
+        if not self.__state.startswith("ok") or self.__ser is None:
+            if self.__cb_newline.isChecked():
+                self.__e_bytes.setText(self.__e_bytes.text()[:-2])
             return
-        if self.__ser is not None:
-            self.__ser.write(self.__values)
-            self.set_indicator(
-                "empty",
-                self.EMPTY_PLACEHOLDER_BYTES,
-                self.EMPTY_PLACEHOLDER_TEXT,
-                placeholder=True
-            )
+
+        self.__ser.write(self.__values)
+        print(self.__values)
+        self.set_indicator(
+            "empty",
+            self.EMPTY_PLACEHOLDER_BYTES,
+            self.EMPTY_PLACEHOLDER_TEXT,
+            placeholder=True
+        )
 
     @pyqtSlot(Serial)
     def update_port(self, ser: Serial):
