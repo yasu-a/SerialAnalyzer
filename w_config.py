@@ -1,5 +1,5 @@
 from PyQt5.QtCore import pyqtSignal, QTimer
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QComboBox
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QComboBox, QLabel
 from serial import Serial
 
 from utils import list_device_names
@@ -18,15 +18,25 @@ class SerialConfigWidget(QWidget):
         self.__timer.timeout.connect(self.update_device_list)
         self.__timer.start()
 
+        self.__timer = QTimer(self)
+        self.__timer.setInterval(250)
+        self.__timer.timeout.connect(self.update_current_device)
+        self.__timer.start()
+
         self.__ser: Serial | None = None
 
     def __init_ui(self):
         layout = QVBoxLayout(self)
 
         cb_device = QComboBox()
+        cb_device.setMinimumHeight(30)
         cb_device.currentIndexChanged.connect(self.update_port_selection)
         layout.addWidget(cb_device)
         self.__cb_device = cb_device
+
+        l_current_device = QLabel()
+        layout.addWidget(l_current_device)
+        self.__l_current_device = l_current_device
 
         self.setLayout(layout)
 
@@ -55,9 +65,12 @@ class SerialConfigWidget(QWidget):
         self.port_updated.emit(self.__ser)
         self.__ser = None
 
+    def update_current_device(self):
+        self.__l_current_device.setText(str(self.__ser))
+
     def update_port_selection(self, index):
         device_name = self.__cb_device.itemText(index)
-        print(device_name, self.__ser)
+
         if self.__ser is not None and self.__ser.port == device_name:
             return
 
@@ -65,6 +78,7 @@ class SerialConfigWidget(QWidget):
         print("Closed")
 
         if device_name == "<Select>":
+            self.close_port()
             return
 
         self.__ser = Serial(port=device_name, baudrate=9600, timeout=0.1)

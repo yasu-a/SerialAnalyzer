@@ -84,7 +84,7 @@ class SerialSenderWidget(QWidget):
                 eb.setStyleSheet("color: red; font-weight: bold;")
                 es.setStyleSheet("color: red; font-weight: bold;")
             elif state == "ng_text":
-                eb.setStyleSheet("color: blue; font-weight: bold;")
+                eb.setStyleSheet("color: red; font-weight: bold;")
                 es.setStyleSheet("color: red; font-weight: bold;")
             else:
                 assert False, state
