@@ -2,7 +2,7 @@ from serial.tools import list_ports
 
 
 def decode_ascii(values: bytes | list[int], replace_error=None):
-    if isinstance(values, bytes):
+    if not isinstance(values, list):
         values = list(values)
     assert isinstance(values, list)
     for i in range(len(values)):

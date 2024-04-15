@@ -155,12 +155,12 @@ class SerialSenderWidget(QWidget):
             return
         if self.__ser is not None:
             self.__ser.write(self.__values)
-        self.set_indicator(
-            "empty",
-            self.EMPTY_PLACEHOLDER_BYTES,
-            self.EMPTY_PLACEHOLDER_TEXT,
-            placeholder=True
-        )
+            self.set_indicator(
+                "empty",
+                self.EMPTY_PLACEHOLDER_BYTES,
+                self.EMPTY_PLACEHOLDER_TEXT,
+                placeholder=True
+            )
 
     @pyqtSlot(Serial)
     def update_port(self, ser: Serial):
