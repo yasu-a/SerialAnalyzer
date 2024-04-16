@@ -162,7 +162,6 @@ class SerialSenderWidget(QWidget):
                     if g_ports.has_active():
                         g_ports.active_port_io.send_bytes(self.__values + b"\x0a")
                         fail = False
-                self.__e_bytes.setText(self.__e_bytes.text() + "0a")
             else:
                 if self.__state.startswith("ok"):
                     if g_ports.has_active():
@@ -182,6 +181,7 @@ class SerialSenderWidget(QWidget):
         if main_window:
             values = " ".join(f"{value:02x}" for value in self.__values)
             main_window.statusBar().showMessage(f"Data sent: {values}")
+        self.__values = b""
         self.set_indicator(
             "empty",
             self.EMPTY_PLACEHOLDER_BYTES,
