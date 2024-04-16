@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QPlainTextEdit
 
 

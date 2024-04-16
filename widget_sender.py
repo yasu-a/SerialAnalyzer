@@ -1,18 +1,17 @@
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QCheckBox
-from serial import Serial
 
-from utils import decode_ascii
+from serial_core import COMPortIOError
+from utils import decode_ascii, find_main_window
+from utils import g_ports
 
 
 class SerialSenderWidget(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent: QObject = None):
         super().__init__(parent)
 
         self.__values = b""
         self.__state = None
-
-        self.__ser = None
 
         self.__init_ui()
 
@@ -156,26 +155,34 @@ class SerialSenderWidget(QWidget):
             )
 
     def flush(self):
-        if self.__cb_newline.isChecked():
-            self.__e_bytes.setText(self.__e_bytes.text() + "0a")
-
-        if not self.__state.startswith("ok") or self.__ser is None:
+        fail = True
+        try:
             if self.__cb_newline.isChecked():
-                self.__e_bytes.setText(self.__e_bytes.text()[:-2])
+                if self.__state.startswith("ok") or self.__state == "empty":
+                    if g_ports.has_active():
+                        g_ports.active_port_io.send_bytes(self.__values + b"\x0a")
+                        fail = False
+                self.__e_bytes.setText(self.__e_bytes.text() + "0a")
+            else:
+                if self.__state.startswith("ok"):
+                    if g_ports.has_active():
+                        g_ports.active_port_io.send_bytes(self.__values)
+                        fail = False
+        except COMPortIOError as e:
+            main_window = find_main_window()
+            if main_window:
+                main_window.statusBar().showMessage(f"FAILED TO SEND DATA: {e}")
+
+        if fail:
             return
 
-        self.__ser.write(self.__values)
-        print(self.__values)
+        main_window = find_main_window()
+        if main_window:
+            values = " ".join(f"{value:02x}" for value in self.__values)
+            main_window.statusBar().showMessage(f"Data sent: {values}")
         self.set_indicator(
             "empty",
             self.EMPTY_PLACEHOLDER_BYTES,
             self.EMPTY_PLACEHOLDER_TEXT,
             placeholder=True
         )
-
-    @pyqtSlot(Serial)
-    def update_port(self, ser: Serial):
-        if ser.is_open:
-            self.__ser = ser
-        else:
-            self.__ser = None
