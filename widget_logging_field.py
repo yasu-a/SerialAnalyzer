@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 
 from PyQt5.QtCore import *
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPlainTextEdit, QHBoxLayout, QCheckBox, \
     QPushButton
 
@@ -124,6 +125,7 @@ class LogViewWidget(QWidget):
 
         field = QPlainTextEdit(self)
         field.setReadOnly(True)
+        field.setFont(QFont("Consolas", 9))
         field.setTextInteractionFlags(Qt.NoTextInteraction)
         layout.addWidget(field)
         self.__field = field
@@ -132,13 +134,13 @@ class LogViewWidget(QWidget):
         layout.addLayout(layout_control)
 
         cb_scroll = QCheckBox(self)
-        cb_scroll.setText("Autoscroll")
+        cb_scroll.setText("自動スクロール")
         cb_scroll.setChecked(True)
         layout_control.addWidget(cb_scroll)
         self.__cb_scroll = cb_scroll
 
         cb_hex = QCheckBox(self)
-        cb_hex.setText("Hexadecimal")
+        cb_hex.setText("16進数")
         cb_hex.setChecked(True)
         layout_control.addWidget(cb_hex)
         self.__cb_hex = cb_hex
@@ -146,12 +148,12 @@ class LogViewWidget(QWidget):
         layout_control.addStretch(1)
 
         b_clear = QPushButton(self)
-        b_clear.setText("Clear")
+        b_clear.setText("クリア")
         b_clear.clicked.connect(self.clear_later)
         layout_control.addWidget(b_clear)
 
         b_freeze = QPushButton(self)
-        b_freeze.setText("Freeze")
+        b_freeze.setText("編集モード")
         b_freeze.clicked.connect(self.freeze)
         layout_control.addWidget(b_freeze)
 

@@ -31,6 +31,9 @@ class SerialConfigWidget(QWidget):
 
     def update_current_device_info(self):
         if g_ports.has_active():
-            self.__t_current_device.setText(pformat(g_ports.active_port_info))
+            info = g_ports.active_port_info
+            self.__t_current_device.setText(
+                "\n".join(f"{k}: {v!r}" for k, v in info.items())
+            )
         else:
             self.__t_current_device.setText("")

@@ -15,8 +15,8 @@ class SerialSenderWidget(QWidget):
 
         self.__init_ui()
 
-    EMPTY_PLACEHOLDER_BYTES = "Enter bytes to send like \"48656c6c6f2121\""
-    EMPTY_PLACEHOLDER_TEXT = "Enter text to send like \"Hello!!\""
+    EMPTY_PLACEHOLDER_BYTES = "ここに送信する16進数を入力してエンター \"48656c6c6f2121\""
+    EMPTY_PLACEHOLDER_TEXT = "ここに送信する文字を入力してエンター \"Hello!!\""
 
     def __init_ui(self):
         layout = QVBoxLayout()
@@ -34,7 +34,7 @@ class SerialSenderWidget(QWidget):
         self.__e_text = e_text
 
         cb_newline = QCheckBox(self)
-        cb_newline.setText("Send newline")
+        cb_newline.setText("改行コード\"\\n\"を送る")
         layout.addWidget(cb_newline)
         self.__cb_newline = cb_newline
 
@@ -171,7 +171,9 @@ class SerialSenderWidget(QWidget):
         except COMPortIOError as e:
             main_window = find_main_window()
             if main_window:
-                main_window.statusBar().showMessage(f"FAILED TO SEND DATA: {e}")
+                main_window.statusBar().showMessage(
+                    f"データの送信に失敗しました：{type(e).__name__}"
+                )
 
         if fail:
             return

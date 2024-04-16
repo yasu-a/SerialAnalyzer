@@ -36,7 +36,7 @@ class MainWindow(QMainWindow):
         self.setStatusBar(self.__status)
 
     def showEvent(self, evt):
-        self.__status.showMessage("Select COM port to open")
+        self.__status.showMessage("COMポートを開いてください")
 
 
 if __name__ == '__main__':
@@ -44,6 +44,6 @@ if __name__ == '__main__':
 
     window = MainWindow()
     window.show()
-    app.setFont(QFont("Consolas", 9))
+    app.setFont(QFont("Meiryo", 9))
     app.setStyle('Fusion')
     app.exec()

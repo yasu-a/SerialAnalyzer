@@ -46,4 +46,6 @@ class SerialReceiverViewWidget(QTabWidget):
             except COMPortIOError as e:
                 main_window = find_main_window()
                 if main_window:
-                    main_window.statusBar().showMessage(f"FAILED TO RECEIVE DATA: {e}")
+                    main_window.statusBar().showMessage(
+                        f"データの受信に失敗しました：{type(e).__name__}"
+                    )
