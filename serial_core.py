@@ -25,9 +25,9 @@ class COMPortConnection:
     def device_name(self):
         return self.__device_name
 
-    def open(self):
+    def open(self, **pyserial_params):
         assert self.__ser is None
-        self.__ser = Serial(self.__device_name)
+        self.__ser = Serial(self.__device_name, **pyserial_params)
 
     def close(self):
         assert self.__ser is not None

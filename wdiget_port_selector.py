@@ -1,7 +1,7 @@
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QListWidget, QCheckBox
 
-from utils import g_ports, block_signals_context, COMPortState
+from utils import g_ports, block_signals_context, COMPortState, COMPortParameters
 
 
 class PortListWidget(QWidget):

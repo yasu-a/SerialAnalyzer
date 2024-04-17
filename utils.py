@@ -1,5 +1,5 @@
 import contextlib
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from enum import Enum
 
 from PyQt5.QtWidgets import QMainWindow, QApplication
@@ -57,6 +57,22 @@ class COMPortState(Enum):
     OPEN = "OPEN"
 
 
+@dataclass(frozen=True)
+class COMPortParameters:
+    baudrate: int
+
+    @classmethod
+    def default(cls):
+        return cls(
+            baudrate=9600,
+        )
+
+    def replace(self, key, value):
+        items = asdict(self)
+        items[key] = value
+        return type(self)(**items)
+
+
 class COMPort:
     def __init__(self, device_name):
         self.__is_connected = False
@@ -80,9 +96,9 @@ class COMPort:
             else:
                 return COMPortState.CLOSED
 
-    def activate(self):
+    def activate(self, params: COMPortParameters):
         if self.state == COMPortState.CLOSED:
-            self.__conn.open()
+            self.__conn.open(**asdict(params))
 
     def deactivate(self):
         if self.state == COMPortState.OPEN:
@@ -111,6 +127,18 @@ class COMPortSet:
     def __init__(self):
         names = [f"COM{i}" for i in range(1, 8 + 1)]
         self.__ports: dict[str, COMPort] = {name: COMPort(name) for name in names}
+        self.__params: COMPortParameters = COMPortParameters.default()
+
+    @property
+    def parameters(self) -> COMPortParameters:
+        return self.__params
+
+    def set_params_and_reopen(self, params: COMPortParameters):
+        self.__params = params
+        if self.has_active():
+            active_port_name = self.active_port_name
+            self.activate_one(None)
+            self.activate_one(active_port_name)
 
     def update_connection_state(self):
         device_name_list = list_device_names()
@@ -129,7 +157,7 @@ class COMPortSet:
         assert target_name is None or target_name in self.__ports, target_name
         for name, port in self.__ports.items():
             if name == target_name:
-                port.activate()
+                port.activate(self.__params)
             else:
                 port.deactivate()
 

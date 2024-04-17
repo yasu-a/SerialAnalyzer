@@ -1,13 +1,19 @@
-from pprint import pformat
-
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
 from utils import g_ports
 from wdiget_port_selector import PortListWidget
+from widget_port_parameter import PortParameterWidget
 
 
-class SerialConfigWidget(QWidget):
+class HorizontalSplitWidget(QFrame):
+    def __init__(self, parent: QObject = None):
+        super().__init__(parent)
+        self.setFrameShape(QFrame.HLine)
+        self.setFrameShadow(QFrame.Sunken)
+
+
+class PortConfigWidget(QWidget):
     def __init__(self, parent: QObject = None):
         super().__init__(parent)
 
@@ -17,10 +23,20 @@ class SerialConfigWidget(QWidget):
         self.setFixedWidth(200)
 
         layout = QVBoxLayout(self)
+        self.setLayout(layout)
+
+        layout.addWidget(QLabel(self, text="<html><b>シリアルポート</b></html>"))
+
+        w_port_params = PortParameterWidget(self)
+        layout.addWidget(w_port_params)
 
         w_port_list = PortListWidget(self)
         w_port_list.any_state_changed.connect(self.update_current_device_info)
         layout.addWidget(w_port_list)
+
+        layout.addWidget(HorizontalSplitWidget(self))
+
+        layout.addWidget(QLabel(self, text="<html><b>接続中のポート</b></html>"))
 
         l_current_device = QTextEdit()
         l_current_device.setReadOnly(True)

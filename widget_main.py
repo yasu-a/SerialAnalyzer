@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
 
-from widget_config import SerialConfigWidget
+from widget_port import PortConfigWidget
 from widget_receiver import SerialReceiverViewWidget
 from widget_sender import SerialSenderWidget
 
@@ -20,7 +20,7 @@ class MainWidget(QWidget):
         left_layout = QVBoxLayout(self)
         root_layout.addLayout(left_layout)
 
-        w_config = SerialConfigWidget(self)
+        w_config = PortConfigWidget(self)
         left_layout.addWidget(w_config)
         self.__w_config = w_config
 
