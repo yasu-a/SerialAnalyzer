@@ -45,4 +45,4 @@ class SerialReceiverViewWidget(QTabWidget):
                     self.__buf.append(values)
                     self.__buf.session_end()
             except COMPortIOError as e:
-                g_get_status().error(f"データの受信に失敗しました：{type(e).__name__}")
+                g_get_status().error(f"データを受信できません：{type(e).__name__}")

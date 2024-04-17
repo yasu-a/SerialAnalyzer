@@ -47,11 +47,20 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("MoroMonitor Mk.1")
 
         status = QStatusBar(self)
+        self.setStatusBar(status)
+
         status.addPermanentWidget(VLine())
+
         self.cpu_label = QLabel(self)
         self.cpu_label.setFixedWidth(100)
         status.addPermanentWidget(self.cpu_label)
-        self.setStatusBar(status)
+
+        status.addPermanentWidget(VLine())
+
+        self.ram_label = QLabel(self)
+        self.ram_label.setFixedWidth(100)
+        status.addPermanentWidget(self.ram_label)
+
 
     def showEvent(self, evt):
         g_get_status().info("COMポートを開いてください")
@@ -73,8 +82,11 @@ class MainWindow(QMainWindow):
             status_bar.showMessage(f"{message}（{str(datetime.now())[:-7]}）")
         elif tag == "cpu":
             self.cpu_label.setText(message)
+        elif tag == "ram":
+            self.ram_label.setText(message)
         else:
             assert False, tag
 
     def timer_timeout(self):
         g_get_status().info("CPU: {:.0f}%".format(psutil.cpu_percent()), tag="cpu")
+        g_get_status().info("RAM: {:.0f}MB".format(psutil.virtual_memory().total >> 30), tag="ram")

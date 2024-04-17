@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QCheckBox
 
-from serial_core import COMPortIOError
+from serial_core import COMPortIOError, COMPortOSError, COMPortClosedError
 from status import g_get_status
 from utils import decode_ascii
 from utils import g_ports
@@ -16,8 +16,8 @@ class SerialSenderWidget(QWidget):
 
         self.__init_ui()
 
-    EMPTY_PLACEHOLDER_BYTES = "ここに送信する16進数を入力してエンター \"48656c6c6f2121\""
-    EMPTY_PLACEHOLDER_TEXT = "ここに送信する文字を入力してエンター \"Hello!!\""
+    EMPTY_PLACEHOLDER_BYTES = "送信する16進数を入力してエンター 例：48656c6c6f2121"
+    EMPTY_PLACEHOLDER_TEXT = "送信する文字列を入力してエンター 例：Hello!!"
 
     def __init_ui(self):
         layout = QVBoxLayout()
@@ -72,14 +72,14 @@ class SerialSenderWidget(QWidget):
                 eb.setStyleSheet("color: black; font-weight: normal;")
                 es.setStyleSheet("color: black; font-weight: normal;")
             elif state == "ok_bytes":
-                eb.setStyleSheet("color: black; font-weight: bold;")
-                es.setStyleSheet("color: green; font-weight: normal;")
+                eb.setStyleSheet("color: green; font-weight: bold;")
+                es.setStyleSheet("color: black; font-weight: normal;")
             elif state == "ok_bytes_but_ng_encoding":
-                eb.setStyleSheet("color: black; font-weight: bold;")
+                eb.setStyleSheet("color: green; font-weight: bold;")
                 es.setStyleSheet("color: red; font-weight: bold;")
             elif state == "ok_text":
-                eb.setStyleSheet("color: green; font-weight: normal;")
-                es.setStyleSheet("color: black; font-weight: bold;")
+                eb.setStyleSheet("color: black; font-weight: normal;")
+                es.setStyleSheet("color: green; font-weight: bold;")
             elif state == "ng_bytes":
                 eb.setStyleSheet("color: red; font-weight: bold;")
                 es.setStyleSheet("color: red; font-weight: bold;")
@@ -163,13 +163,17 @@ class SerialSenderWidget(QWidget):
                     if g_ports.has_active():
                         g_ports.active_port_io.send_bytes(self.__values + b"\x0a")
                         fail = False
+                    else:
+                        raise COMPortClosedError()
             else:
                 if self.__state.startswith("ok"):
                     if g_ports.has_active():
                         g_ports.active_port_io.send_bytes(self.__values)
                         fail = False
+                    else:
+                        raise COMPortClosedError()
         except COMPortIOError as e:
-            g_get_status().info(f"データの送信に失敗しました：{type(e).__name__}")
+            g_get_status().error(f"データを送信できません：{type(e).__name__}")
 
         if fail:
             return
