@@ -42,6 +42,7 @@ class PortConfigWidget(QWidget):
         w_port_details = PortDetailWidget()
         w_port_list.any_state_changed.connect(w_port_details.update_port_info)
         w_port_list.any_params_changed.connect(w_port_details.update_port_info)
+        w_port_list.any_info_changed.connect(w_port_details.update_port_info)
         layout.addWidget(w_port_details)
         self.__w_port_details = w_port_details
 

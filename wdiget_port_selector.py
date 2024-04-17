@@ -3,27 +3,30 @@ import dataclasses
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QListWidget, QCheckBox
 
-from utils import g_ports, block_signals_context, COMPortState, COMPortParameters
+from utils import g_ports, block_signals_context, COMPortState
 
 
 class PortListWidget(QWidget):
     any_state_changed = pyqtSignal()
     any_params_changed = pyqtSignal()
+    any_info_changed = pyqtSignal()
 
     def __init__(self, parent: QObject = None):
         super().__init__(parent)
 
-        self.__previous_parameter_set = set()
+        self.__previous_parameter_dict = {}
+        self.__previous_info_dict = {}
 
         self.__init_ui()
 
         self.__previous_state_list: list[COMPortState] = g_ports.state_list
 
         self.__port_list_update_timer = QTimer(self)
-        self.__port_list_update_timer.setInterval(300)
+        self.__port_list_update_timer.setInterval(1000)
         self.__port_list_update_timer.timeout.connect(self.update_port_list)
         self.__port_list_update_timer.timeout.connect(self.process_auto_connect)
         self.__port_list_update_timer.timeout.connect(self.check_parameter_change)
+        self.__port_list_update_timer.timeout.connect(self.check_info_change)
         self.__port_list_update_timer.start()
 
     def __init_ui(self):
@@ -118,10 +121,20 @@ class PortListWidget(QWidget):
         self.any_state_changed.emit()
 
     def check_parameter_change(self):
-        param_set = dataclasses.asdict(g_ports.parameters)
-        if self.__previous_parameter_set != param_set:
-            self.__previous_parameter_set = param_set
+        param_dict = dataclasses.asdict(g_ports.parameters)
+        if self.__previous_parameter_dict != param_dict:
             self.any_params_changed.emit()
+            self.__previous_parameter_dict = param_dict
+
+    def check_info_change(self):
+        if g_ports.has_active():
+            info_dict = g_ports.active_port_info
+        else:
+            info_dict = {}
+
+        if self.__previous_info_dict != info_dict:
+            self.any_info_changed.emit()
+            self.__previous_info_dict = info_dict
 
     def showEvent(self, evt):
         self._reflect_port_list()

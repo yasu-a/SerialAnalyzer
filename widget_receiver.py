@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QVBoxLayout, QTabWidget
 
 from serial_core import COMPortIOError
 from status import g_get_status
-from utils import g_ports, block_signals_context, find_main_window
+from utils import g_ports, block_signals_context
 from widget_logging_field import LogViewWidget, LogBuffer
 
 

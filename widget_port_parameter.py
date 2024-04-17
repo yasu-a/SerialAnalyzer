@@ -2,7 +2,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
 from utils import g_ports, COMPortParameters
-from wdiget_port_selector import PortListWidget
 
 
 class PortParameterWidget(QWidget):

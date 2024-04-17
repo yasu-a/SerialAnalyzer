@@ -1,9 +1,15 @@
+import collections
+from collections import OrderedDict
+from datetime import time, datetime
+
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
 from utils import g_ports
-from wdiget_port_selector import PortListWidget
-from widget_port_parameter import PortParameterWidget
+
+
+def maybe_datetime_to_time_string(maybe_datetime: datetime | None) -> str:
+    return "-" if maybe_datetime is None else str(maybe_datetime.time())[:-7]
 
 
 class PortDetailWidget(QWidget):
@@ -24,8 +30,7 @@ class PortDetailWidget(QWidget):
         for i in reversed(range(layout.count())):
             layout.itemAt(i).widget().deleteLater()
 
-        keys = sorted(mapping.keys())
-        for i_row, key in enumerate(keys):
+        for i_row, key in enumerate(mapping):
             label = QLabel(self)
             label.setText(key)
             layout.addWidget(label, i_row, 0)
@@ -34,22 +39,42 @@ class PortDetailWidget(QWidget):
             label.setText(mapping[key])
             layout.addWidget(label, i_row, 1)
 
-    KEYS = {
-        "baudrate": "BAUD",
-        "state": "状態",
-        "name": "デバイス名"
+    KEY_MAPPER = OrderedDict([
+        ("name", "名前"),
+        ("state", "状態"),
+        ("baudrate", "BAUD"),
+        ("created_at", "開始"),
+        ("accessed_at", "アクセス"),
+        ("received_at", "受信"),
+        ("total_n_received", "受信量"),
+        ("sent_at", "送信"),
+        ("total_n_sent", "送信量"),
+    ])
+
+    KEY_ORDER = collections.defaultdict(lambda: 999, {k: i for i, k in enumerate(KEY_MAPPER)})
+    print(KEY_ORDER)
+    VALUE_MAPPER = {
+        "received_at": maybe_datetime_to_time_string,
+        "sent_at": maybe_datetime_to_time_string,
+        "created_at": maybe_datetime_to_time_string,
+        "accessed_at": maybe_datetime_to_time_string,
     }
 
     FORMATS = {
         "baudrate": "{} baud",
+        "total_n_received": "{:,} bytes",
+        "total_n_sent": "{:,} bytes",
     }
 
     @classmethod
     def map_serial_info(cls, serial_info: dict):
-        result = {}
-        for k, v in serial_info.items():
-            k = cls.KEYS.get(k, k)
+        result = OrderedDict()
+        keys = sorted(serial_info.keys(), key=cls.KEY_ORDER.__getitem__)
+        for k in keys:
+            v = serial_info[k]
+            v = cls.VALUE_MAPPER.get(k, lambda x: x)(v)
             v = cls.FORMATS.get(k, "{}").format(v)
+            k = cls.KEY_MAPPER.get(k, k)
             result[k] = v
         return result
 

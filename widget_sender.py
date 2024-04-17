@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QCheckBox
 
 from serial_core import COMPortIOError
 from status import g_get_status
-from utils import decode_ascii, find_main_window
+from utils import decode_ascii
 from utils import g_ports
 
 
