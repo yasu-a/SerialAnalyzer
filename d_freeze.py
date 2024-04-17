@@ -1,4 +1,5 @@
 from PyQt5.QtCore import *
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QPlainTextEdit
 
 
@@ -13,6 +14,7 @@ class LogFreezeDialog(QDialog):
         self.__te = QPlainTextEdit()
         self.__te.insertPlainText(text)
         self.__te.setReadOnly(True)
+        self.__te.setFont(QFont("Consolas", 10))
         layout.addWidget(self.__te)
 
         self.setLayout(layout)

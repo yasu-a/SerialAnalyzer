@@ -15,7 +15,7 @@ class SerialReceiverViewWidget(QTabWidget):
         self.__init_ui()
 
         self.__timer = QTimer(self)
-        self.__timer.setInterval(100)
+        self.__timer.setInterval(10)
         self.__timer.timeout.connect(self.update_log)
         self.__timer.start()
 

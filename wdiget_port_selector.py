@@ -1,3 +1,5 @@
+import dataclasses
+
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QListWidget, QCheckBox
 
@@ -6,17 +8,22 @@ from utils import g_ports, block_signals_context, COMPortState, COMPortParameter
 
 class PortListWidget(QWidget):
     any_state_changed = pyqtSignal()
+    any_params_changed = pyqtSignal()
 
     def __init__(self, parent: QObject = None):
         super().__init__(parent)
+
+        self.__previous_parameter_set = set()
 
         self.__init_ui()
 
         self.__previous_state_list: list[COMPortState] = g_ports.state_list
 
         self.__port_list_update_timer = QTimer(self)
-        self.__port_list_update_timer.setInterval(500)
+        self.__port_list_update_timer.setInterval(300)
         self.__port_list_update_timer.timeout.connect(self.update_port_list)
+        self.__port_list_update_timer.timeout.connect(self.process_auto_connect)
+        self.__port_list_update_timer.timeout.connect(self.check_parameter_change)
         self.__port_list_update_timer.start()
 
     def __init_ui(self):
@@ -31,7 +38,7 @@ class PortListWidget(QWidget):
         self.__l_ports = l_ports
 
         cb_auto_connect = QCheckBox(self)
-        cb_auto_connect.setText("接続したら自動で開く")
+        cb_auto_connect.setText("常に再接続する")
         layout.addWidget(cb_auto_connect)
         self.__cb_auto_connect = cb_auto_connect
 
@@ -96,8 +103,6 @@ class PortListWidget(QWidget):
             self._reflect_port_list()
             self.any_state_changed.emit()
 
-        self.process_auto_connect()
-
     def port_selection_clicked(self):
         if g_ports.has_active():
             current_port_name = g_ports.active_port_name
@@ -111,6 +116,12 @@ class PortListWidget(QWidget):
 
         g_ports.activate_one(new_port_name)
         self.any_state_changed.emit()
+
+    def check_parameter_change(self):
+        param_set = dataclasses.asdict(g_ports.parameters)
+        if self.__previous_parameter_set != param_set:
+            self.__previous_parameter_set = param_set
+            self.any_params_changed.emit()
 
     def showEvent(self, evt):
         self._reflect_port_list()

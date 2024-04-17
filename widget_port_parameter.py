@@ -15,19 +15,23 @@ class PortParameterWidget(QWidget):
         layout = QGridLayout(self)
         self.setLayout(layout)
 
-        layout.addWidget(QLabel(self, text="baud"), 0, 0)
         l_baudrate = QComboBox(self)
-        l_baudrate.addItems([
-            "300", "1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200"
-        ])
-        l_baudrate.setCurrentText("9600")
+        l_baudrate.addItems(
+            list(
+                map(
+                    "{} baud".format,
+                    ["300", "1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200"],
+                )
+            )
+        )
+        l_baudrate.setCurrentText("9600 baud")
         l_baudrate.currentTextChanged.connect(self.on_parameter_changed)
-        layout.addWidget(l_baudrate, 0, 1)
+        layout.addWidget(l_baudrate, 0, 0)
         self.__l_baudrate = l_baudrate
 
     @pyqtSlot()
     def on_parameter_changed(self):
-        baudrate = int(self.__l_baudrate.currentText())
+        baudrate = int(self.__l_baudrate.currentText().split(" ")[0])
         g_ports.set_params_and_reopen(
             COMPortParameters(
                 baudrate=baudrate,
