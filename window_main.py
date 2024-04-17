@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import psutil
 from PyQt5.QtCore import QObject, QSize, QTimer
 from PyQt5.QtWidgets import *
@@ -54,15 +56,21 @@ class MainWindow(QMainWindow):
     def showEvent(self, evt):
         g_get_status().info("COMポートを開いてください")
 
+    STATUS_MESSAGE_TRUNCATE = 80
+
     def set_status_message(self, level, message, tag):
         if tag is None:
+            status_bar = self.statusBar()
             if level == "error":
-                message = f"<html><font color=\"red\">{message}</font></html>"
+                status_bar.setStyleSheet("color: red; font-weight: bold;")
             elif level == "info":
-                pass
+                status_bar.setStyleSheet("color: black; font-weight: normal;")
             else:
                 assert False, level
-            self.statusBar().showMessage(message)
+            status_bar.setToolTip(f"{message}（{str(datetime.now())[:-7]}）")
+            if len(message) > self.STATUS_MESSAGE_TRUNCATE:
+                message = message[:self.STATUS_MESSAGE_TRUNCATE] + " ..."
+            status_bar.showMessage(f"{message}（{str(datetime.now())[:-7]}）")
         elif tag == "cpu":
             self.cpu_label.setText(message)
         else:

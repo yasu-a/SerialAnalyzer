@@ -2,6 +2,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QVBoxLayout, QTabWidget
 
 from serial_core import COMPortIOError
+from status import g_get_status
 from utils import g_ports, block_signals_context, find_main_window
 from widget_logging_field import LogViewWidget, LogBuffer
 
@@ -44,8 +45,4 @@ class SerialReceiverViewWidget(QTabWidget):
                     self.__buf.append(values)
                     self.__buf.session_end()
             except COMPortIOError as e:
-                main_window = find_main_window()
-                if main_window:
-                    main_window.statusBar().showMessage(
-                        f"データの受信に失敗しました：{type(e).__name__}"
-                    )
+                g_get_status().error(f"データの受信に失敗しました：{type(e).__name__}")

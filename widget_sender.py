@@ -2,6 +2,7 @@ from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QCheckBox
 
 from serial_core import COMPortIOError
+from status import g_get_status
 from utils import decode_ascii, find_main_window
 from utils import g_ports
 
@@ -168,19 +169,14 @@ class SerialSenderWidget(QWidget):
                         g_ports.active_port_io.send_bytes(self.__values)
                         fail = False
         except COMPortIOError as e:
-            main_window = find_main_window()
-            if main_window:
-                main_window.statusBar().showMessage(
-                    f"データの送信に失敗しました：{type(e).__name__}"
-                )
+            g_get_status().info(f"データの送信に失敗しました：{type(e).__name__}")
 
         if fail:
             return
 
-        main_window = find_main_window()
-        if main_window:
-            values = " ".join(f"{value:02x}" for value in self.__values)
-            main_window.statusBar().showMessage(f"Data sent: {values}")
+        values = " ".join(f"{value:02x}" for value in self.__values)
+        g_get_status().info(f"データを送信しました：{values}")
+
         self.__values = b""
         self.set_indicator(
             "empty",
