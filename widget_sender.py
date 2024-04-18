@@ -1,7 +1,7 @@
 import collections
 
 from PyQt5.QtCore import QObject, Qt, QEvent
-from PyQt5.QtGui import QKeyEvent
+from PyQt5.QtGui import QKeyEvent, QFont
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QCheckBox
 
 from serial_core import COMPortIOError, COMPortOSError, COMPortClosedError
@@ -19,9 +19,6 @@ class SendBuffer:
     def update_buffer(self, value: bytes):
         assert isinstance(value, bytes)
         self.__buffer = value
-
-    def buffered(self) -> bytes:
-        return self.__buffer
 
     def notify_flush(self):
         if self.__buffer:
@@ -75,6 +72,7 @@ class SerialSenderWidget(QWidget):
         layout = QVBoxLayout()
 
         e_bytes = QLineEdit(self)
+        e_bytes.setFont(QFont("Consolas"))
         e_bytes.textChanged.connect(self.__e_bytes_changed)
         e_bytes.returnPressed.connect(self.flush)
         e_bytes.installEventFilter(self)
@@ -82,6 +80,7 @@ class SerialSenderWidget(QWidget):
         self.__e_bytes = e_bytes
 
         e_text = QLineEdit(self)
+        e_text.setFont(QFont("Consolas"))
         e_text.textChanged.connect(self.__e_text_changed)
         e_text.returnPressed.connect(self.flush)
         e_text.installEventFilter(self)
@@ -101,6 +100,9 @@ class SerialSenderWidget(QWidget):
             self.EMPTY_PLACEHOLDER_TEXT,
             placeholder=True
         )
+
+    def current_input_bytes(self) -> bytes:
+        return bytes(bytearray.fromhex(self.__e_bytes.text()))
 
     def on_key_entered_on_line_edit(self, evt: QKeyEvent):
         if evt.key() == Qt.Key_Up:
@@ -174,7 +176,7 @@ class SerialSenderWidget(QWidget):
             return
 
         try:
-            text = decode_ascii(self.__buf.buffered())
+            text = decode_ascii(data)
         except ValueError:
             self.set_indicator(
                 "ok_bytes_but_ng_encoding",
@@ -215,7 +217,7 @@ class SerialSenderWidget(QWidget):
         if self.__buf.pointed():
             self.set_indicator(
                 "ok_text",
-                "".join(hex(value)[2:] for value in self.__buf.buffered()),
+                "".join(hex(value)[2:] for value in self.__buf.pointed()),
                 None,
             )
         else:
@@ -234,7 +236,7 @@ class SerialSenderWidget(QWidget):
             if self.__cb_newline.isChecked():
                 if self.__state.startswith("ok") or self.__state == "empty":
                     if g_ports.has_active():
-                        bytes_sent = self.__buf.pointed() + b"\x0a"
+                        bytes_sent = self.current_input_bytes() + b"\x0a"
                         g_ports.active_port_io.send_bytes(bytes_sent)
                         fail = False
                     else:
@@ -242,7 +244,7 @@ class SerialSenderWidget(QWidget):
             else:
                 if self.__state.startswith("ok"):
                     if g_ports.has_active():
-                        bytes_sent = self.__buf.pointed()
+                        bytes_sent = self.current_input_bytes()
                         g_ports.active_port_io.send_bytes(bytes_sent)
                         fail = False
                     else:
