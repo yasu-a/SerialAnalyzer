@@ -22,7 +22,7 @@ class PortListWidget(QWidget):
         self.__previous_state_list: list[COMPortState] = g_ports.state_list
 
         self.__port_list_update_timer = QTimer(self)
-        self.__port_list_update_timer.setInterval(1000)
+        self.__port_list_update_timer.setInterval(500)
         self.__port_list_update_timer.timeout.connect(self.update_port_list)
         self.__port_list_update_timer.timeout.connect(self.process_auto_connect)
         self.__port_list_update_timer.timeout.connect(self.check_parameter_change)
