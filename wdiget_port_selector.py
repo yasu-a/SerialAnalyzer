@@ -41,11 +41,12 @@ class PortListWidget(QWidget):
         self.__l_ports = l_ports
 
         cb_auto_connect = QCheckBox(self)
-        cb_auto_connect.setText("常に再接続する")
+        cb_auto_connect.setText("自動的に接続する")
+        cb_auto_connect.setChecked(True)
         layout.addWidget(cb_auto_connect)
         self.__cb_auto_connect = cb_auto_connect
 
-    LIST_ITEM_TEXT_DISCONNECT = "＜切断＞"
+    LIST_ITEM_TEXT_DISCONNECT = "（切断）"
 
     def __add_item(self, name: str | None):
         if name is None:
