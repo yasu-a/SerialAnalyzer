@@ -26,13 +26,13 @@ def decode_ascii(values: bytes | list[int], replace_error=None, enable_spaces=Fa
     return "".join(replace_error if value is None else chr(value) for value in values)
 
 
-# def find_main_window() -> QMainWindow | None:
-#     # Global function to find the (open) QMainWindow in application
-#     app = QApplication.instance()
-#     for widget in app.topLevelWidgets():
-#         if isinstance(widget, QMainWindow):
-#             return widget
-#     return None
+def find_main_window() -> QMainWindow | None:
+    # Global function to find the (open) QMainWindow in application
+    app = QApplication.instance()
+    for widget in app.topLevelWidgets():
+        if isinstance(widget, QMainWindow):
+            return widget
+    return None
 
 
 @contextlib.contextmanager

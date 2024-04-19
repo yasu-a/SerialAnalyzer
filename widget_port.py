@@ -1,6 +1,7 @@
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
+from utils import find_main_window
 from wdiget_port_selector import PortListWidget
 from widget_port_details import PortDetailWidget
 from widget_port_parameter import PortParameterWidget
@@ -46,4 +47,16 @@ class PortConfigWidget(QWidget):
         layout.addWidget(w_port_details)
         self.__w_port_details = w_port_details
 
+        layout.addWidget(QLabel(self, text="<html><b>Windowの設定</b></html>"))
+
+        b_stay_on_top = QPushButton(self)
+        b_stay_on_top.clicked.connect(self.__on_cb_show_front_changed)
+        b_stay_on_top.setText("常に前面に表示")
+        layout.addWidget(b_stay_on_top)
+        self.__cb_show_front = b_stay_on_top
+
         layout.addStretch(1)
+
+    def __on_cb_show_front_changed(self):
+        find_main_window().setWindowFlags(Qt.WindowStaysOnTopHint)
+        find_main_window().show()

@@ -204,7 +204,10 @@ class SerialSenderWidget(QWidget):
 
     def __e_text_changed(self, text):
         try:
-            self.__buf.update_buffer(text.encode("latin-1"))
+            encoded_bytes = text.encode("latin-1")
+            self.__buf.update_buffer(encoded_bytes)
+            with block_signals_context(self.__e_bytes) as eb:
+                eb.setText(encoded_bytes)
         except ValueError:
             self.set_indicator(
                 "ng_text",
