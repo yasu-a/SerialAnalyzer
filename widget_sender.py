@@ -1,3 +1,4 @@
+import binascii
 import collections
 
 from PyQt5.QtCore import QObject, Qt, QEvent
@@ -207,7 +208,7 @@ class SerialSenderWidget(QWidget):
             encoded_bytes = text.encode("latin-1")
             self.__buf.update_buffer(encoded_bytes)
             with block_signals_context(self.__e_bytes) as eb:
-                eb.setText(encoded_bytes)
+                eb.setText(binascii.hexlify(encoded_bytes).decode("latin-1"))
         except ValueError:
             self.set_indicator(
                 "ng_text",

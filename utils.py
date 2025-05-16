@@ -126,7 +126,7 @@ class COMPort:
 
 class COMPortSet:
     def __init__(self):
-        names = [f"COM{i}" for i in range(1, 8 + 1)]
+        names = [f"COM{i}" for i in range(1, 20 + 1)]
         self.__ports: dict[str, COMPort] = {name: COMPort(name) for name in names}
         self.__params: COMPortParameters = COMPortParameters.default()
 

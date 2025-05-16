@@ -1,8 +1,10 @@
+import sys
+import traceback
 from dataclasses import dataclass
 from datetime import datetime
 
 from PyQt5.QtCore import QMutex
-from serial import Serial
+from serial import Serial, SerialException
 
 __all__ = (
     "list_device_names",
@@ -75,9 +77,14 @@ class COMPortConnection:
 
     def open(self, **pyserial_params):
         assert self.__ser is None
-        self.__ser = Serial(self.__device_name, **pyserial_params)
-        with self.__stat as stat:
-            stat.created_at = datetime.now()
+        try:
+            self.__ser = Serial(self.__device_name, **pyserial_params)
+        except SerialException as e:
+            print(e, file=sys.stderr)
+            self.__ser = None
+        else:
+            with self.__stat as stat:
+                stat.created_at = datetime.now()
 
     def close(self):
         assert self.__ser is not None
